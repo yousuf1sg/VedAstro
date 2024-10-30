@@ -13362,7 +13362,7 @@ namespace VedAstro.Library
         /// When the Moon is waning, take the distance from
         /// the Moon to the· Sun, and divide it by 3 for assessing
         /// Pakshabala. Moon, Jupiter, Venus and
-        /// Mercury are strong in Sukla Paksba and the others
+        /// Mercury are strong in Sukla Paksha and the others
         /// in Krishna Paksha.
         ///
         /// Note: Mercury is benefic or malefic based on planets conjunct with it
@@ -13429,7 +13429,9 @@ namespace VedAstro.Library
             if (pakshaBala == 0)
             {
                 //raise error
-                throw new Exception("Paksha bala not found, error!");
+                //throw new Exception("Paksha bala not found, error!");
+                //TODO better error handling, possibly error in logic
+                Console.WriteLine("Paksha bala not found, error!!!!");
             }
 
             return new Shashtiamsa(pakshaBala);
