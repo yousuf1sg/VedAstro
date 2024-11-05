@@ -1315,301 +1315,6 @@ namespace VedAstro.Library
         }
 
         /// <summary>
-        /// Get Navamsa (D9) sign of planet at a given time
-        /// </summary>
-        public static ZodiacName PlanetNavamsaSign(PlanetName planetName, Time time)
-        {
-            //get planets longitude
-            var planetLongitude = PlanetNirayanaLongitude(planetName, time);
-
-            //get navamsa sign at longitude
-            var navamsaSignOfPlanet = NavamsaSignNameFromLongitude(planetLongitude);
-
-            return navamsaSignOfPlanet;
-        }
-
-        /// <summary>
-        /// Get navamsa sign of house (mid point)
-        /// TODO: Checking for correctness needed
-        /// </summary>
-        public static ZodiacName HouseNavamsaSign(HouseName house, Time time)
-        {
-            //if empty return Aries
-            if (house == HouseName.Empty) { return ZodiacName.Aries; }
-
-            //get all houses
-            var allHouseList = AllHouseMiddleLongitudes(time);
-
-            //get house mid longitude
-            var houseMiddleLongitude = allHouseList.Find(hs => hs.GetHouseName() == house).GetMiddleLongitude();
-
-            //get navamsa house sign at house mid longitude
-            var navamsaSign = NavamsaSignNameFromLongitude(houseMiddleLongitude);
-
-            return navamsaSign;
-        }
-
-        /// <summary>
-        /// Get Thrimsamsa sign of planet
-        /// Trimshamsha or one-thirtieth of a sign
-        ///
-        /// Reference (Elements of Astrology) : 
-        /// Trimshamsha (Table X-12): Literally speaking, it is considered as one-
-        /// thirtieth division of a sign. Actually, however, each sign is divided into five
-        /// unequal parts, each part belonging to one of the five planets from Mars to
-        /// Saturn. In odd signs, the first five degrees belong to Mars, the next five
-        /// degrees to Saturn, the next eight degrees to Jupiter, the subsequent seven
-        /// degrees to Mercury, and the last five degrees to Venus. This order gets
-        /// reversed in case of even signs where the planets Venus, Mercury, Jupiter,
-        /// Saturn and Mars respectively own five degrees, seven degrees, eight
-        /// degrees, five degrees and five degrees, in a sign.
-        ///
-        /// </summary>
-        public static ZodiacName PlanetThrimsamsaSign(PlanetName planetName, Time time)
-        {
-            //get sign planet is in
-            var planetSign = PlanetZodiacSign(planetName, time);
-
-            //get planet sign name
-            var planetSignName = planetSign.GetSignName();
-
-            //get degrees in sign 
-            var degreesInSign = planetSign.GetDegreesInSign().TotalDegrees;
-
-            //declare const number for Thrimsamsa calculation
-            const double maxThrimsamsaDegrees = 1; // 30/1
-            const double maxSignDegrees = 30.0;
-
-            //get rough Thrimsamsa number
-            double roughThrimsamsaNumber = (degreesInSign % maxSignDegrees) / maxThrimsamsaDegrees;
-
-            //get rounded saptamsa number
-            var thrimsamsaNumber = (int)Math.Ceiling(roughThrimsamsaNumber);
-
-            //if planet is in odd sign
-            if (IsOddSign(planetSignName))
-            {
-                //1,2,3,4,5 - Mars
-                if (thrimsamsaNumber >= 0 && thrimsamsaNumber <= 5)
-                {
-                    //Aries and Scorpio are ruled by Mars
-                    return ZodiacName.Scorpio;
-                }
-                //6,7,8,9,10 - saturn
-                if (thrimsamsaNumber >= 6 && thrimsamsaNumber <= 10)
-                {
-                    //Capricorn and Aquarius by Saturn.
-                    return ZodiacName.Capricorn;
-
-                }
-                //11,12,13,14,15,16,17,18 - jupiter
-                if (thrimsamsaNumber >= 11 && thrimsamsaNumber <= 18)
-                {
-                    //Sagittarius and Pisces by Jupiter
-                    return ZodiacName.Sagittarius;
-
-                }
-                //19,20,21,22,23,24,25 - mercury
-                if (thrimsamsaNumber >= 19 && thrimsamsaNumber <= 25)
-                {
-                    //Gemini and Virgo by Mercury
-                    return ZodiacName.Gemini;
-                }
-                //26,27,28,29,30 - venus
-                if (thrimsamsaNumber >= 26 && thrimsamsaNumber <= 30)
-                {
-                    //Taurus and Libra by Venus;
-                    return ZodiacName.Taurus;
-                }
-
-            }
-
-            //if planet is in even sign
-            if (IsEvenSign(planetSignName))
-            {
-                //1,2,3,4,5 - venus
-                if (thrimsamsaNumber >= 0 && thrimsamsaNumber <= 5)
-                {
-                    //Taurus and Libra by Venus;
-                    return ZodiacName.Taurus;
-                }
-                //6,7,8,9,10,11,12 - mercury
-                if (thrimsamsaNumber >= 6 && thrimsamsaNumber <= 12)
-                {
-                    //Gemini and Virgo by Mercury
-                    return ZodiacName.Gemini;
-                }
-                //13,14,15,16,17,18,19,20 - jupiter
-                if (thrimsamsaNumber >= 13 && thrimsamsaNumber <= 20)
-                {
-                    //Sagittarius and Pisces by Jupiter
-                    return ZodiacName.Sagittarius;
-
-                }
-                //21,22,23,24,25 - saturn
-                if (thrimsamsaNumber >= 21 && thrimsamsaNumber <= 25)
-                {
-                    //Capricorn and Aquarius by Saturn.
-                    return ZodiacName.Capricorn;
-
-                }
-                //26,27,28,29,30 - Mars
-                if (thrimsamsaNumber >= 26 && thrimsamsaNumber <= 30)
-                {
-                    //Aries and Scorpio are ruled by Mars
-                    return ZodiacName.Scorpio;
-                }
-
-            }
-
-            throw new Exception("Thrimsamsa not found, error!");
-        }
-
-        /// <summary>
-        /// When a sign is divided into 12 equal parts each is called a Dwadasamsa (D12) and measures 2.5 degrees.
-        /// The Bhachakra can thus he said to contain 12x12=144 Dwadasamsas. The lords of the 12
-        /// Dwadasamsas in a sign are the lords of the 12 signs from it, i.e.,
-        /// the lord of the first Dwadasamsa in Mesha is Kuja, that of the second Sukra and so on.
-        /// </summary>
-        public static ZodiacName PlanetDwadasamsaSign(PlanetName planetName, Time time)
-        {
-            //get sign planet is in
-            var planetSign = PlanetZodiacSign(planetName, time);
-
-            //get planet sign name
-            var planetSignName = planetSign.GetSignName();
-
-            //get degrees in sign 
-            var degreesInSign = planetSign.GetDegreesInSign().TotalDegrees;
-
-            //declare const number for Dwadasamsa calculation
-            const double maxDwadasamsaDegrees = 2.5; // 30/12
-            const double maxSignDegrees = 30.0;
-
-            //get rough Dwadasamsa number
-            double roughDwadasamsaNumber = (degreesInSign % maxSignDegrees) / maxDwadasamsaDegrees;
-
-            //get rounded Dwadasamsa number
-            var dwadasamsaNumber = (int)Math.Ceiling(roughDwadasamsaNumber);
-
-            //get Dwadasamsa sign from counting with Dwadasamsa number
-            var dwadasamsaSign = SignCountedFromInputSign(planetSignName, dwadasamsaNumber);
-
-            return dwadasamsaSign;
-        }
-
-        /// <summary>
-        /// sign is divided into 7 equal parts each is called a Saptamsa (D7) and measures 4.28 degrees
-        /// </summary>
-        public static ZodiacName PlanetSaptamsaSign(PlanetName planetName, Time time)
-        {
-            //get sign planet is in
-            var planetSign = PlanetZodiacSign(planetName, time);
-
-            //get planet sign name
-            var planetSignName = planetSign.GetSignName();
-
-            //get degrees in sign 
-            var degreesInSign = planetSign.GetDegreesInSign().TotalDegrees;
-
-            //declare const number for saptamsa calculation
-            const double maxSaptamsaDegrees = 4.285714285714286; // 30/7
-            const double maxSignDegrees = 30.0;
-
-            //get rough saptamsa number
-            double roughSaptamsaNumber = (degreesInSign % maxSignDegrees) / maxSaptamsaDegrees;
-
-            //get rounded saptamsa number
-            var saptamsaNumber = (int)Math.Ceiling(roughSaptamsaNumber);
-
-            //2.0 Get even or odd sign
-
-            //if planet is in odd sign
-            if (IsOddSign(planetSignName))
-            {
-                //convert saptamsa number to zodiac name
-                return SignCountedFromInputSign(planetSignName, saptamsaNumber);
-            }
-
-            //if planet is in even sign
-            if (IsEvenSign(planetSignName))
-            {
-                var countToNextSign = saptamsaNumber + 6;
-                return SignCountedFromInputSign(planetSignName, countToNextSign);
-            }
-
-
-            throw new Exception("Saptamsa not found, error!");
-        }
-
-
-        /// <summary>
-        /// Gets Navamsa (D9) sign given a longitude
-        /// </summary>
-        public static ZodiacName NavamsaSignNameFromLongitude(Angle longitude)
-        {
-            //1.0 Get ordinary zodiac sign name
-            //get ordinary zodiac sign
-            var ordinarySign = ZodiacSignAtLongitude(longitude);
-
-            //get name of ordinary sign
-            var ordinarySignName = ordinarySign.GetSignName();
-
-            //2.0 Get first navamsa sign
-            ZodiacName firstNavamsa;
-
-            switch (ordinarySignName)
-            {
-                //Aries, Leo, Sagittarius - from Aries.
-                case ZodiacName.Aries:
-                case ZodiacName.Leo:
-                case ZodiacName.Sagittarius:
-                    firstNavamsa = ZodiacName.Aries;
-                    break;
-                //Taurus, Capricorn, Virgo - from Capricorn.
-                case ZodiacName.Taurus:
-                case ZodiacName.Capricorn:
-                case ZodiacName.Virgo:
-                    firstNavamsa = ZodiacName.Capricorn;
-                    break;
-                //Gemini, Libra, Aquarius - from Libra.
-                case ZodiacName.Gemini:
-                case ZodiacName.Libra:
-                case ZodiacName.Aquarius:
-                    firstNavamsa = ZodiacName.Libra;
-                    break;
-                //Cancer, Scorpio, Pisces - from Cancer.
-                case ZodiacName.Cancer:
-                case ZodiacName.Scorpio:
-                case ZodiacName.Pisces:
-                    firstNavamsa = ZodiacName.Cancer;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-
-            //3.0 Get the number of the navamsa currently in
-            //get degrees in ordinary sign
-            var degreesInOrdinarySign = ordinarySign.GetDegreesInSign();
-
-            //declare length of a navamsa in the ecliptic arc
-            const double navamsaLenghtInDegrees = 3.333333333;
-
-            //divide total degrees in current sign to get raw navamsa number
-            var rawNavamsaNumber = degreesInOrdinarySign.TotalDegrees / navamsaLenghtInDegrees;
-
-            //round the raw number to get current navamsa number
-            var navamsaNumber = (int)Math.Ceiling(rawNavamsaNumber);
-
-            //4.0 Get navamsa sign
-            //count from first navamsa sign
-            ZodiacName signAtNavamsa = SignCountedFromInputSign(firstNavamsa, navamsaNumber);
-
-            return signAtNavamsa;
-
-        }
-
-        /// <summary>
         /// Calculates the divisional longitude of a planet in a D-chart (divisional chart) in Vedic Astrology.
         /// written by AI & Human 
         /// </summary>
@@ -1761,18 +1466,435 @@ namespace VedAstro.Library
         /// </summary>
         public static ZodiacSign SaptamshaSignName(ZodiacSign zodiacSign) => Vargas.VargasCoreCalculator(zodiacSign, Vargas.SaptamshaTable[zodiacSign.GetSignName()], 7);
 
+        /// <summary>
+        /// Saptamsa (D7) and measures 4.28 degrees
+        /// TODO : BV RAMAN method, OLD MARKED FOR OBLIVION, NEEDS TESTING AGAINST NEW METHOD
+        /// </summary>
+        public static ZodiacName PlanetSaptamshaSignOLD(PlanetName planetName, Time time)
+        {
+            //get sign planet is in
+            var planetSign = PlanetZodiacSign(planetName, time);
+
+            //get planet sign name
+            var planetSignName = planetSign.GetSignName();
+
+            //get degrees in sign 
+            var degreesInSign = planetSign.GetDegreesInSign().TotalDegrees;
+
+            //declare const number for saptamsa calculation
+            const double maxSaptamsaDegrees = 4.285714285714286; // 30/7
+            const double maxSignDegrees = 30.0;
+
+            //get rough saptamsa number
+            double roughSaptamsaNumber = (degreesInSign % maxSignDegrees) / maxSaptamsaDegrees;
+
+            //get rounded saptamsa number
+            var saptamsaNumber = (int)Math.Ceiling(roughSaptamsaNumber);
+
+            //2.0 Get even or odd sign
+
+            //if planet is in odd sign
+            if (IsOddSign(planetSignName))
+            {
+                //convert saptamsa number to zodiac name
+                return SignCountedFromInputSign(planetSignName, saptamsaNumber);
+            }
+
+            //if planet is in even sign
+            if (IsEvenSign(planetSignName))
+            {
+                var countToNextSign = saptamsaNumber + 6;
+                return SignCountedFromInputSign(planetSignName, countToNextSign);
+            }
+
+
+            throw new Exception("Saptamsa not found, error!");
+        }
+
 
         //------------ D9 : Navamsha ------------
-        //------------ D10 : Dashamsha ------------
+
+        /// <summary>
+        /// D9 chart
+        /// </summary>
+        public static ZodiacSign PlanetNavamshaSign(PlanetName planetName, Time time) => Calculate.NavamshaSignName(Calculate.PlanetZodiacSign(planetName, time));
+
+        /// <summary>
+        /// D9 chart
+        /// </summary>
+        public static ZodiacSign NavamshaSignName(ZodiacSign zodiacSign) => Vargas.VargasCoreCalculator(zodiacSign, Vargas.NavamshaTable[zodiacSign.GetSignName()], 9);
+
+        /// <summary>
+        /// Gets Navamsa (D9) sign given a longitude
+        /// </summary>
+        public static ZodiacName NavamshaSignNameFromLongitude(Angle longitude) => Calculate.NavamshaSignName(ZodiacSignAtLongitude(longitude)).GetSignName();
+
+        /// <summary>
+        /// Get Navamsa (D9) sign of house (mid point)
+        /// TODO: Checking for correctness needed
+        /// </summary>
+        public static ZodiacName HouseNavamshaSign(HouseName house, Time time)
+        {
+            //if empty return Aries
+            if (house == HouseName.Empty) { return ZodiacName.Aries; }
+
+            //get all houses
+            var allHouseList = AllHouseMiddleLongitudes(time);
+
+            //get house mid longitude
+            var houseMiddleLongitude = allHouseList.Find(hs => hs.GetHouseName() == house).GetMiddleLongitude();
+
+            //get navamsa house sign at house mid longitude
+            var navamsaSign = NavamshaSignNameFromLongitude(houseMiddleLongitude);
+
+            return navamsaSign;
+        }
+
+        /// <summary>
+        /// Gets Navamsa (D9) sign given a longitude
+        /// TODO : BV RAMAN method, OLD MARKED FOR OBLIVION, NEEDS TESTING AGAINST NEW METHOD
+        /// </summary>
+        public static ZodiacName NavamsaSignNameFromLongitudeOLD(Angle longitude)
+        {
+            //1.0 Get ordinary zodiac sign name
+            //get ordinary zodiac sign
+            var ordinarySign = ZodiacSignAtLongitude(longitude);
+
+            //get name of ordinary sign
+            var ordinarySignName = ordinarySign.GetSignName();
+
+            //2.0 Get first navamsa sign
+            ZodiacName firstNavamsa;
+
+            switch (ordinarySignName)
+            {
+                //Aries, Leo, Sagittarius - from Aries.
+                case ZodiacName.Aries:
+                case ZodiacName.Leo:
+                case ZodiacName.Sagittarius:
+                    firstNavamsa = ZodiacName.Aries;
+                    break;
+                //Taurus, Capricorn, Virgo - from Capricorn.
+                case ZodiacName.Taurus:
+                case ZodiacName.Capricorn:
+                case ZodiacName.Virgo:
+                    firstNavamsa = ZodiacName.Capricorn;
+                    break;
+                //Gemini, Libra, Aquarius - from Libra.
+                case ZodiacName.Gemini:
+                case ZodiacName.Libra:
+                case ZodiacName.Aquarius:
+                    firstNavamsa = ZodiacName.Libra;
+                    break;
+                //Cancer, Scorpio, Pisces - from Cancer.
+                case ZodiacName.Cancer:
+                case ZodiacName.Scorpio:
+                case ZodiacName.Pisces:
+                    firstNavamsa = ZodiacName.Cancer;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            //3.0 Get the number of the navamsa currently in
+            //get degrees in ordinary sign
+            var degreesInOrdinarySign = ordinarySign.GetDegreesInSign();
+
+            //declare length of a navamsa in the ecliptic arc
+            const double navamsaLenghtInDegrees = 3.333333333;
+
+            //divide total degrees in current sign to get raw navamsa number
+            var rawNavamsaNumber = degreesInOrdinarySign.TotalDegrees / navamsaLenghtInDegrees;
+
+            //round the raw number to get current navamsa number
+            var navamsaNumber = (int)Math.Ceiling(rawNavamsaNumber);
+
+            //4.0 Get navamsa sign
+            //count from first navamsa sign
+            ZodiacName signAtNavamsa = SignCountedFromInputSign(firstNavamsa, navamsaNumber);
+
+            return signAtNavamsa;
+
+        }
+
+        /// <summary>
+        /// Get Navamsa (D9) sign of planet at a given time
+        /// TODO : BV RAMAN method, OLD MARKED FOR OBLIVION, NEEDS TESTING AGAINST NEW METHOD
+        /// </summary>
+        public static ZodiacName PlanetNavamshaSignOLD(PlanetName planetName, Time time)
+        {
+            //get planets longitude
+            var planetLongitude = PlanetNirayanaLongitude(planetName, time);
+
+            //get navamsa sign at longitude
+            var navamsaSignOfPlanet = NavamshaSignNameFromLongitude(planetLongitude);
+
+            return navamsaSignOfPlanet;
+        }
+
+
+        //------------ D10 : Dashamamsha ------------
+        /// <summary>
+        /// D10 chart
+        /// </summary>
+        public static ZodiacSign PlanetDashamamshaSign(PlanetName planetName, Time time) => Calculate.DashamamshaSignName(Calculate.PlanetZodiacSign(planetName, time));
+
+        /// <summary>
+        /// D10 chart
+        /// </summary>
+        public static ZodiacSign DashamamshaSignName(ZodiacSign zodiacSign) => Vargas.VargasCoreCalculator(zodiacSign, Vargas.DashamamshaTable[zodiacSign.GetSignName()], 10);
+
+
         //------------ D12 : Dwadashamsha ------------
+
+        /// <summary>
+        /// D12 chart
+        /// </summary>
+        public static ZodiacSign PlanetDwadashamshaSign(PlanetName planetName, Time time) => Calculate.DwadashamshaSignName(Calculate.PlanetZodiacSign(planetName, time));
+
+        /// <summary>
+        /// D12 chart
+        /// </summary>
+        public static ZodiacSign DwadashamshaSignName(ZodiacSign zodiacSign) => Vargas.VargasCoreCalculator(zodiacSign, Vargas.DwadashamshaTable[zodiacSign.GetSignName()], 12);
+
+
+        /// <summary>
+        /// When a sign is divided into 12 equal parts each is called a Dwadasamsa (D12) and measures 2.5 degrees.
+        /// The Bhachakra can thus he said to contain 12x12=144 Dwadasamsas. The lords of the 12
+        /// Dwadasamsas in a sign are the lords of the 12 signs from it, i.e.,
+        /// the lord of the first Dwadasamsa in Mesha is Kuja, that of the second Sukra and so on.
+        /// 
+        /// TODO : BV RAMAN method, OLD MARKED FOR OBLIVION, NEEDS TESTING AGAINST NEW METHOD
+        /// </summary>
+        public static ZodiacName PlanetDwadashamshaSignOLD(PlanetName planetName, Time time)
+        {
+            //get sign planet is in
+            var planetSign = PlanetZodiacSign(planetName, time);
+
+            //get planet sign name
+            var planetSignName = planetSign.GetSignName();
+
+            //get degrees in sign 
+            var degreesInSign = planetSign.GetDegreesInSign().TotalDegrees;
+
+            //declare const number for Dwadasamsa calculation
+            const double maxDwadasamsaDegrees = 2.5; // 30/12
+            const double maxSignDegrees = 30.0;
+
+            //get rough Dwadasamsa number
+            double roughDwadasamsaNumber = (degreesInSign % maxSignDegrees) / maxDwadasamsaDegrees;
+
+            //get rounded Dwadasamsa number
+            var dwadasamsaNumber = (int)Math.Ceiling(roughDwadasamsaNumber);
+
+            //get Dwadasamsa sign from counting with Dwadasamsa number
+            var dwadasamsaSign = SignCountedFromInputSign(planetSignName, dwadasamsaNumber);
+
+            return dwadasamsaSign;
+        }
+
+
         //------------ D16 : Shodashamsha ------------
+
+        /// <summary>
+        /// D16 chart
+        /// </summary>
+        public static ZodiacSign PlanetShodashamshaSign(PlanetName planetName, Time time) => Calculate.ShodashamshaSignName(Calculate.PlanetZodiacSign(planetName, time));
+
+        /// <summary>
+        /// D16 chart
+        /// </summary>
+        public static ZodiacSign ShodashamshaSignName(ZodiacSign zodiacSign) => Vargas.VargasCoreCalculator(zodiacSign, Vargas.ShodashamshaTable[zodiacSign.GetSignName()], 16);
+
+
         //------------ D20 : Vimshamsha ------------
+        /// <summary>
+        /// D20 chart
+        /// </summary>
+        public static ZodiacSign PlanetVimshamshaSign(PlanetName planetName, Time time) => Calculate.VimshamshaSignName(Calculate.PlanetZodiacSign(planetName, time));
+
+        /// <summary>
+        /// D20 chart
+        /// </summary>
+        public static ZodiacSign VimshamshaSignName(ZodiacSign zodiacSign) => Vargas.VargasCoreCalculator(zodiacSign, Vargas.VimshamshaTable[zodiacSign.GetSignName()], 20);
+
+
         //------------ D24 : Chaturvimshamsha ------------
+        /// <summary>
+        /// D24 chart
+        /// </summary>
+        public static ZodiacSign PlanetChaturvimshamshaSign(PlanetName planetName, Time time) => Calculate.ChaturvimshamshaSignName(Calculate.PlanetZodiacSign(planetName, time));
+
+        /// <summary>
+        /// D24 chart
+        /// </summary>
+        public static ZodiacSign ChaturvimshamshaSignName(ZodiacSign zodiacSign) => Vargas.VargasCoreCalculator(zodiacSign, Vargas.ChaturvimshamshaTable[zodiacSign.GetSignName()], 24);
+
+
         //------------ D27 : Bhamsha / Sapta-vimshamsha ------------
+        /// <summary>
+        /// D27 chart
+        /// </summary>
+        public static ZodiacSign PlanetBhamshaSign(PlanetName planetName, Time time) => Calculate.BhamshaSignName(Calculate.PlanetZodiacSign(planetName, time));
+
+        /// <summary>
+        /// D27 chart
+        /// </summary>
+        public static ZodiacSign BhamshaSignName(ZodiacSign zodiacSign) => Vargas.VargasCoreCalculator(zodiacSign, Vargas.BhamshaTable[zodiacSign.GetSignName()], 27);
+
+
         //------------ D30 : Trimshamsha ------------
+        /// <summary>
+        /// Get Thrimsamsa (D30) sign of planet
+        /// Trimshamsha or one-thirtieth of a sign
+        ///
+        /// Reference (Elements of Astrology) : 
+        /// Trimshamsha (Table X-12): Literally speaking, it is considered as one-
+        /// thirtieth division of a sign. Actually, however, each sign is divided into five
+        /// unequal parts, each part belonging to one of the five planets from Mars to
+        /// Saturn. In odd signs, the first five degrees belong to Mars, the next five
+        /// degrees to Saturn, the next eight degrees to Jupiter, the subsequent seven
+        /// degrees to Mercury, and the last five degrees to Venus. This order gets
+        /// reversed in case of even signs where the planets Venus, Mercury, Jupiter,
+        /// Saturn and Mars respectively own five degrees, seven degrees, eight
+        /// degrees, five degrees and five degrees, in a sign.
+        ///
+        /// </summary>
+        public static ZodiacName PlanetThrimsamsaSign(PlanetName planetName, Time time)
+        {
+            //get sign planet is in
+            var planetSign = PlanetZodiacSign(planetName, time);
+
+            //get planet sign name
+            var planetSignName = planetSign.GetSignName();
+
+            //get degrees in sign 
+            var degreesInSign = planetSign.GetDegreesInSign().TotalDegrees;
+
+            //declare const number for Thrimsamsa calculation
+            const double maxThrimsamsaDegrees = 1; // 30/1
+            const double maxSignDegrees = 30.0;
+
+            //get rough Thrimsamsa number
+            double roughThrimsamsaNumber = (degreesInSign % maxSignDegrees) / maxThrimsamsaDegrees;
+
+            //get rounded saptamsa number
+            var thrimsamsaNumber = (int)Math.Ceiling(roughThrimsamsaNumber);
+
+            //if planet is in odd sign
+            if (IsOddSign(planetSignName))
+            {
+                //1,2,3,4,5 - Mars
+                if (thrimsamsaNumber >= 0 && thrimsamsaNumber <= 5)
+                {
+                    //Aries and Scorpio are ruled by Mars
+                    return ZodiacName.Scorpio;
+                }
+                //6,7,8,9,10 - saturn
+                if (thrimsamsaNumber >= 6 && thrimsamsaNumber <= 10)
+                {
+                    //Capricorn and Aquarius by Saturn.
+                    return ZodiacName.Capricorn;
+
+                }
+                //11,12,13,14,15,16,17,18 - jupiter
+                if (thrimsamsaNumber >= 11 && thrimsamsaNumber <= 18)
+                {
+                    //Sagittarius and Pisces by Jupiter
+                    return ZodiacName.Sagittarius;
+
+                }
+                //19,20,21,22,23,24,25 - mercury
+                if (thrimsamsaNumber >= 19 && thrimsamsaNumber <= 25)
+                {
+                    //Gemini and Virgo by Mercury
+                    return ZodiacName.Gemini;
+                }
+                //26,27,28,29,30 - venus
+                if (thrimsamsaNumber >= 26 && thrimsamsaNumber <= 30)
+                {
+                    //Taurus and Libra by Venus;
+                    return ZodiacName.Taurus;
+                }
+
+            }
+
+            //if planet is in even sign
+            if (IsEvenSign(planetSignName))
+            {
+                //1,2,3,4,5 - venus
+                if (thrimsamsaNumber >= 0 && thrimsamsaNumber <= 5)
+                {
+                    //Taurus and Libra by Venus;
+                    return ZodiacName.Taurus;
+                }
+                //6,7,8,9,10,11,12 - mercury
+                if (thrimsamsaNumber >= 6 && thrimsamsaNumber <= 12)
+                {
+                    //Gemini and Virgo by Mercury
+                    return ZodiacName.Gemini;
+                }
+                //13,14,15,16,17,18,19,20 - jupiter
+                if (thrimsamsaNumber >= 13 && thrimsamsaNumber <= 20)
+                {
+                    //Sagittarius and Pisces by Jupiter
+                    return ZodiacName.Sagittarius;
+
+                }
+                //21,22,23,24,25 - saturn
+                if (thrimsamsaNumber >= 21 && thrimsamsaNumber <= 25)
+                {
+                    //Capricorn and Aquarius by Saturn.
+                    return ZodiacName.Capricorn;
+
+                }
+                //26,27,28,29,30 - Mars
+                if (thrimsamsaNumber >= 26 && thrimsamsaNumber <= 30)
+                {
+                    //Aries and Scorpio are ruled by Mars
+                    return ZodiacName.Scorpio;
+                }
+
+            }
+
+            throw new Exception("Thrimsamsa not found, error!");
+        }
+
+
         //------------ D40 : Khavedamsha ------------
+        /// <summary>
+        /// D40 chart
+        /// </summary>
+        public static ZodiacSign PlanetKhavedamshaSign(PlanetName planetName, Time time) => Calculate.KhavedamshaSignName(Calculate.PlanetZodiacSign(planetName, time));
+
+        /// <summary>
+        /// D40 chart
+        /// </summary>
+        public static ZodiacSign KhavedamshaSignName(ZodiacSign zodiacSign) => Vargas.VargasCoreCalculator(zodiacSign, Vargas.KhavedamshaTable[zodiacSign.GetSignName()], 40);
+
+
         //------------ D45 : Aksha-vedamsha ------------
+        /// <summary>
+        /// D45 chart
+        /// </summary>
+        public static ZodiacSign PlanetAkshavedamshaSign(PlanetName planetName, Time time) => Calculate.AkshavedamshaSignName(Calculate.PlanetZodiacSign(planetName, time));
+
+        /// <summary>
+        /// D45 chart
+        /// </summary>
+        public static ZodiacSign AkshavedamshaSignName(ZodiacSign zodiacSign) => Vargas.VargasCoreCalculator(zodiacSign, Vargas.AkshavedamshaTable[zodiacSign.GetSignName()], 45);
+
+
         //------------ D60 : Shashtyamsha ------------
+        /// <summary>
+        /// D60 chart
+        /// </summary>
+        public static ZodiacSign PlanetShashtyamshaSign(PlanetName planetName, Time time) => Calculate.ShashtyamshaSignName(Calculate.PlanetZodiacSign(planetName, time));
+
+        /// <summary>
+        /// D60 chart
+        /// </summary>
+        public static ZodiacSign ShashtyamshaSignName(ZodiacSign zodiacSign) => Vargas.VargasCoreCalculator(zodiacSign, Vargas.ShashtyamshaTable[zodiacSign.GetSignName()], 60);
 
 
         /// <summary>
@@ -1993,7 +2115,7 @@ namespace VedAstro.Library
         public static HouseName TransitHouseFromNavamsaLagna(PlanetName transitPlanet, Time checkTime, Time birthTime)
         {
             //Note the Lagna Rashi.
-            var navamsaLagnaRasi = Calculate.HouseNavamsaSign(HouseName.House1, birthTime);
+            var navamsaLagnaRasi = Calculate.HouseNavamshaSign(HouseName.House1, birthTime);
 
             //Choose the planet transit result for which predictions to be made.
 
@@ -2023,7 +2145,7 @@ namespace VedAstro.Library
         public static HouseName TransitHouseFromNavamsaMoon(PlanetName transitPlanet, Time checkTime, Time birthTime)
         {
             //Note the Janma Rashi.
-            var janmaRasi = Calculate.PlanetNavamsaSign(Moon, birthTime);
+            var janmaRasi = Calculate.PlanetNavamshaSign(Moon, birthTime);
 
             //Choose the planet transit result for which predictions to be made.
             //Note the transit position of the Moon with reference to
@@ -12463,21 +12585,21 @@ namespace VedAstro.Library
 
 
                 //get planet saptamsa (D7)
-                var planetSaptamsa = Calculate.PlanetSaptamsaSign(planetName, time);
+                var planetSaptamsa = Calculate.PlanetSaptamshaSign(planetName, time);
                 var saptamsaSignRelationship = Calculate.PlanetRelationshipWithSign(planetName, planetSaptamsa, time);
                 //add planet saptamsa relationship to list
                 planetSignRelationshipList.Add(saptamsaSignRelationship);
 
 
                 //get planet navamsa (D9)
-                var planetNavamsa = Calculate.PlanetNavamsaSign(planetName, time);
+                var planetNavamsa = Calculate.PlanetNavamshaSign(planetName, time);
                 var navamsaSignRelationship = Calculate.PlanetRelationshipWithSign(planetName, planetNavamsa, time);
                 //add planet navamsa relationship to list
                 planetSignRelationshipList.Add(navamsaSignRelationship);
 
 
                 //get planet dwadasamsa (D12)
-                var planetDwadasamsa = Calculate.PlanetDwadasamsaSign(planetName, time);
+                var planetDwadasamsa = Calculate.PlanetDwadashamshaSign(planetName, time);
                 var dwadasamsaSignRelationship = Calculate.PlanetRelationshipWithSign(planetName, planetDwadasamsa, time);
                 //add planet dwadasamsa relationship to list
                 planetSignRelationshipList.Add(dwadasamsaSignRelationship);
@@ -12724,7 +12846,7 @@ namespace VedAstro.Library
             var planetRasiSign = Calculate.PlanetZodiacSign(planetName, time).GetSignName();
 
             //get planet navamsa sign
-            var planetNavamsaSign = Calculate.PlanetNavamsaSign(planetName, time);
+            var planetNavamsaSign = Calculate.PlanetNavamshaSign(planetName, time);
 
             //declare total Ojayugmarasyamsa Bala as 0 first
             double totalOjayugmarasyamsaBalaInShashtiamsas = 0;
