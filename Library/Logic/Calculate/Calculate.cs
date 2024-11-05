@@ -1744,6 +1744,7 @@ namespace VedAstro.Library
 
 
         //------------ D30 : Trimshamsha ------------
+
         /// <summary>
         /// Get Thrimsamsa (D30) sign of planet
         /// Trimshamsha or one-thirtieth of a sign
@@ -1760,16 +1761,19 @@ namespace VedAstro.Library
         /// degrees, five degrees and five degrees, in a sign.
         ///
         /// </summary>
-        public static ZodiacName PlanetThrimsamsaSign(PlanetName planetName, Time time)
-        {
-            //get sign planet is in
-            var planetSign = PlanetZodiacSign(planetName, time);
 
+        public static ZodiacSign PlanetTrimshamshaSign(PlanetName planetName, Time time) => Calculate.TrimshamshaSignName(Calculate.PlanetZodiacSign(planetName, time));
+
+        /// <summary>
+        /// D30 chart
+        /// </summary>
+        public static ZodiacSign TrimshamshaSignName(ZodiacSign zodiacSign)
+        {
             //get planet sign name
-            var planetSignName = planetSign.GetSignName();
+            var zodiacSignName = zodiacSign.GetSignName();
 
             //get degrees in sign 
-            var degreesInSign = planetSign.GetDegreesInSign().TotalDegrees;
+            var degreesInSign = zodiacSign.GetDegreesInSign().TotalDegrees;
 
             //declare const number for Thrimsamsa calculation
             const double maxThrimsamsaDegrees = 1; // 30/1
@@ -1781,84 +1785,90 @@ namespace VedAstro.Library
             //get rounded saptamsa number
             var thrimsamsaNumber = (int)Math.Ceiling(roughThrimsamsaNumber);
 
+            var signName = ZodiacName.Empty;
+
             //if planet is in odd sign
-            if (IsOddSign(planetSignName))
+            if (IsOddSign(zodiacSignName))
             {
                 //1,2,3,4,5 - Mars
                 if (thrimsamsaNumber >= 0 && thrimsamsaNumber <= 5)
                 {
                     //Aries and Scorpio are ruled by Mars
-                    return ZodiacName.Scorpio;
+                    signName = ZodiacName.Scorpio;
                 }
                 //6,7,8,9,10 - saturn
                 if (thrimsamsaNumber >= 6 && thrimsamsaNumber <= 10)
                 {
                     //Capricorn and Aquarius by Saturn.
-                    return ZodiacName.Capricorn;
+                    signName = ZodiacName.Capricorn;
 
                 }
                 //11,12,13,14,15,16,17,18 - jupiter
                 if (thrimsamsaNumber >= 11 && thrimsamsaNumber <= 18)
                 {
                     //Sagittarius and Pisces by Jupiter
-                    return ZodiacName.Sagittarius;
+                    signName = ZodiacName.Sagittarius;
 
                 }
                 //19,20,21,22,23,24,25 - mercury
                 if (thrimsamsaNumber >= 19 && thrimsamsaNumber <= 25)
                 {
                     //Gemini and Virgo by Mercury
-                    return ZodiacName.Gemini;
+                    signName = ZodiacName.Gemini;
                 }
                 //26,27,28,29,30 - venus
                 if (thrimsamsaNumber >= 26 && thrimsamsaNumber <= 30)
                 {
                     //Taurus and Libra by Venus;
-                    return ZodiacName.Taurus;
+                    signName = ZodiacName.Taurus;
                 }
 
             }
 
             //if planet is in even sign
-            if (IsEvenSign(planetSignName))
+            if (IsEvenSign(zodiacSignName))
             {
                 //1,2,3,4,5 - venus
                 if (thrimsamsaNumber >= 0 && thrimsamsaNumber <= 5)
                 {
                     //Taurus and Libra by Venus;
-                    return ZodiacName.Taurus;
+                    signName = ZodiacName.Taurus;
                 }
                 //6,7,8,9,10,11,12 - mercury
                 if (thrimsamsaNumber >= 6 && thrimsamsaNumber <= 12)
                 {
                     //Gemini and Virgo by Mercury
-                    return ZodiacName.Gemini;
+                    signName = ZodiacName.Gemini;
                 }
                 //13,14,15,16,17,18,19,20 - jupiter
                 if (thrimsamsaNumber >= 13 && thrimsamsaNumber <= 20)
                 {
                     //Sagittarius and Pisces by Jupiter
-                    return ZodiacName.Sagittarius;
+                    signName = ZodiacName.Sagittarius;
 
                 }
                 //21,22,23,24,25 - saturn
                 if (thrimsamsaNumber >= 21 && thrimsamsaNumber <= 25)
                 {
                     //Capricorn and Aquarius by Saturn.
-                    return ZodiacName.Capricorn;
+                    signName = ZodiacName.Capricorn;
 
                 }
                 //26,27,28,29,30 - Mars
                 if (thrimsamsaNumber >= 26 && thrimsamsaNumber <= 30)
                 {
                     //Aries and Scorpio are ruled by Mars
-                    return ZodiacName.Scorpio;
+                    signName = ZodiacName.Scorpio;
                 }
 
             }
 
-            throw new Exception("Thrimsamsa not found, error!");
+            //NOTE : degrees in sign have to be converted (special logic) for specific division type
+            var divisionalDegreesInSign = Calculate.DivisionalLongitude(degreesInSign, 30);
+            return new ZodiacSign(signName, divisionalDegreesInSign);
+
         }
+
 
 
         //------------ D40 : Khavedamsha ------------
@@ -1904,6 +1914,18 @@ namespace VedAstro.Library
         public static Dictionary<PlanetName, ZodiacSign> AllPlanetHoraSign(Time time) => All9Planets.ToDictionary(planet => planet, planet => PlanetHoraSigns(planet, time));
         public static Dictionary<PlanetName, ZodiacSign> AllPlanetDrekkanaSign(Time time) => All9Planets.ToDictionary(planet => planet, planet => PlanetDrekkanaSign(planet, time));
         public static Dictionary<PlanetName, ZodiacSign> AllPlanetChaturthamsaSign(Time time) => All9Planets.ToDictionary(planet => planet, planet => PlanetChaturthamshaSign(planet, time));
+        public static Dictionary<PlanetName, ZodiacSign> AllPlanetSaptamshaSign(Time time) => All9Planets.ToDictionary(planet => planet, planet => PlanetSaptamshaSign(planet, time));
+        public static Dictionary<PlanetName, ZodiacSign> AllPlanetNavamshaSign(Time time) => All9Planets.ToDictionary(planet => planet, planet => PlanetNavamshaSign(planet, time));
+        public static Dictionary<PlanetName, ZodiacSign> AllPlanetDashamamshaSign(Time time) => All9Planets.ToDictionary(planet => planet, planet => PlanetDashamamshaSign(planet, time));
+        public static Dictionary<PlanetName, ZodiacSign> AllPlanetDwadashamshaSign(Time time) => All9Planets.ToDictionary(planet => planet, planet => PlanetDwadashamshaSign(planet, time));
+        public static Dictionary<PlanetName, ZodiacSign> AllPlanetShodashamshaSign(Time time) => All9Planets.ToDictionary(planet => planet, planet => PlanetShodashamshaSign(planet, time));
+        public static Dictionary<PlanetName, ZodiacSign> AllPlanetVimshamshaSign(Time time) => All9Planets.ToDictionary(planet => planet, planet => PlanetVimshamshaSign(planet, time));
+        public static Dictionary<PlanetName, ZodiacSign> AllPlanetChaturvimshamshaSign(Time time) => All9Planets.ToDictionary(planet => planet, planet => PlanetChaturvimshamshaSign(planet, time));
+        public static Dictionary<PlanetName, ZodiacSign> AllPlanetBhamshaSign(Time time) => All9Planets.ToDictionary(planet => planet, planet => PlanetBhamshaSign(planet, time));
+        public static Dictionary<PlanetName, ZodiacSign> AllPlanetTrimshamshaSign(Time time) => All9Planets.ToDictionary(planet => planet, planet => PlanetTrimshamshaSign(planet, time));
+        public static Dictionary<PlanetName, ZodiacSign> AllPlanetKhavedamshaSign(Time time) => All9Planets.ToDictionary(planet => planet, planet => PlanetKhavedamshaSign(planet, time));
+        public static Dictionary<PlanetName, ZodiacSign> AllPlanetAkshavedamshaSign(Time time) => All9Planets.ToDictionary(planet => planet, planet => PlanetAkshavedamshaSign(planet, time));
+        public static Dictionary<PlanetName, ZodiacSign> AllPlanetShashtyamshaSign(Time time) => All9Planets.ToDictionary(planet => planet, planet => PlanetShashtyamshaSign(planet, time));
 
 
         #endregion
@@ -2145,7 +2167,7 @@ namespace VedAstro.Library
         public static HouseName TransitHouseFromNavamsaMoon(PlanetName transitPlanet, Time checkTime, Time birthTime)
         {
             //Note the Janma Rashi.
-            var janmaRasi = Calculate.PlanetNavamshaSign(Moon, birthTime);
+            var janmaRasi = Calculate.PlanetNavamshaSign(Moon, birthTime).GetSignName();
 
             //Choose the planet transit result for which predictions to be made.
             //Note the transit position of the Moon with reference to
@@ -4155,7 +4177,7 @@ namespace VedAstro.Library
         /// <summary>
         /// Creates a kundali chart from D1 to D20. In south indian style. URL can be used like a SVG image source link
         /// </summary>
-        public static string SouthIndianChart(Time time, ChartType chartType = ChartType.Rasi)
+        public static string SouthIndianChart(Time time, ChartType chartType = ChartType.RasiD1)
         {
             var svgString = (new SouthChartFactory(time, 1000, 1000, chartType)).SVGChart;
 
@@ -5275,6 +5297,7 @@ namespace VedAstro.Library
 
         /// <summary>
         /// Gets the House number a given planet is in at a time
+        /// based on house longitudes NOT sign
         /// </summary>
         public static HouseName HousePlanetOccupies(PlanetName planetName, Time time)
         {
@@ -5300,6 +5323,26 @@ namespace VedAstro.Library
 
             //if planet not found in any house, raise error
             throw new Exception("Planet not in any house, error!");
+
+        }
+
+        /// <summary>
+        /// Gets the House number a given planet is in at a time
+        /// based on house sign NOT longitude
+        /// </summary>
+        public static HouseName HousePlanetOccupiesBasedOnSign(PlanetName planetName, Time time)
+        {
+            // Get the sign of the planet
+            var planetSign = Calculate.PlanetZodiacSign(planetName, time);
+
+            // Get all signs of houses at middle longitude
+            var houseSigns = Calculate.AllHouseSign(time);
+
+            // Find the house with the matching sign
+            var foundHouse = houseSigns.Where(yy => yy.Value.GetSignName() == planetSign.GetSignName()).FirstOrDefault();
+
+            // Return the house name
+            return foundHouse.Key;
 
         }
 
@@ -12585,28 +12628,28 @@ namespace VedAstro.Library
 
 
                 //get planet saptamsa (D7)
-                var planetSaptamsa = Calculate.PlanetSaptamshaSign(planetName, time);
+                var planetSaptamsa = Calculate.PlanetSaptamshaSign(planetName, time).GetSignName();
                 var saptamsaSignRelationship = Calculate.PlanetRelationshipWithSign(planetName, planetSaptamsa, time);
                 //add planet saptamsa relationship to list
                 planetSignRelationshipList.Add(saptamsaSignRelationship);
 
 
                 //get planet navamsa (D9)
-                var planetNavamsa = Calculate.PlanetNavamshaSign(planetName, time);
+                var planetNavamsa = Calculate.PlanetNavamshaSign(planetName, time).GetSignName();
                 var navamsaSignRelationship = Calculate.PlanetRelationshipWithSign(planetName, planetNavamsa, time);
                 //add planet navamsa relationship to list
                 planetSignRelationshipList.Add(navamsaSignRelationship);
 
 
                 //get planet dwadasamsa (D12)
-                var planetDwadasamsa = Calculate.PlanetDwadashamshaSign(planetName, time);
+                var planetDwadasamsa = Calculate.PlanetDwadashamshaSign(planetName, time).GetSignName();
                 var dwadasamsaSignRelationship = Calculate.PlanetRelationshipWithSign(planetName, planetDwadasamsa, time);
                 //add planet dwadasamsa relationship to list
                 planetSignRelationshipList.Add(dwadasamsaSignRelationship);
 
 
                 //get planet thrimsamsa (D30)
-                var planetThrimsamsa = Calculate.PlanetThrimsamsaSign(planetName, time);
+                var planetThrimsamsa = Calculate.PlanetTrimshamshaSign(planetName, time).GetSignName();
                 var thrimsamsaSignRelationship = Calculate.PlanetRelationshipWithSign(planetName, planetThrimsamsa, time);
                 //add planet thrimsamsa relationship to list
                 planetSignRelationshipList.Add(thrimsamsaSignRelationship);
@@ -12846,7 +12889,7 @@ namespace VedAstro.Library
             var planetRasiSign = Calculate.PlanetZodiacSign(planetName, time).GetSignName();
 
             //get planet navamsa sign
-            var planetNavamsaSign = Calculate.PlanetNavamshaSign(planetName, time);
+            var planetNavamsaSign = Calculate.PlanetNavamshaSign(planetName, time).GetSignName();
 
             //declare total Ojayugmarasyamsa Bala as 0 first
             double totalOjayugmarasyamsaBalaInShashtiamsas = 0;
