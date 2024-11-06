@@ -14570,10 +14570,39 @@ namespace VedAstro.Library
         #region TAGS STATIC
 
         /// <summary>
+        /// Gets all events names grouped by tags, for printing on website for user selection when generating events chart.
+        /// </summary>
+        public static JObject GetAllEventDataGroupedByTag()
+        {
+
+            JObject result = new JObject();
+
+            foreach (EventTag eventTag in Enum.GetValues(typeof(EventTag)))
+            {
+                var eventDataList = EventManager.GetEventDataListByTag(eventTag);
+                if (eventDataList.Any())
+                {
+                    JArray eventDataArray = new JArray();
+                    foreach (var eventData in eventDataList)
+                    {
+                        eventDataArray.Add(eventData.ToJson());
+                    }
+                    result[eventTag.ToString()] = eventDataArray;
+                }
+                else
+                {
+                    result[eventTag.ToString()] = new JArray();
+                }
+            }
+
+            return result;
+
+        }
+
+        /// <summary>
         /// Gets all possible algorithm functions, for printing on website for user selection when generating events chart.
         /// </summary>
         public static JArray GetAllEventsChartAlgorithms() => Algorithm.All;
-
 
         /// <summary>
         /// keywords or tag related to a house
