@@ -366,7 +366,7 @@ namespace VedAstro.Library
         /// Returns list of all API calls for fun, why not
         /// </summary>
         /// <returns></returns>
-        public static JArray List()
+        public static JArray ListAPICalls()
         {
             var allApiCalculatorsMethodInfo = Tools.GetAllApiCalculatorsMethodInfo();
 
@@ -644,7 +644,6 @@ namespace VedAstro.Library
         }
 
 
-
         #endregion
 
         #region MATCH CHECK KUTA SCORE
@@ -663,7 +662,7 @@ namespace VedAstro.Library
 
             return compatibilityReport;
         }
-
+        
         public static async Task<string> BirthTimeLocationAutoAIFill(string personFullName)
         {
             //get birth time as compatible text
@@ -838,44 +837,6 @@ namespace VedAstro.Library
             }
         }
 
-        public class Movie
-        {
-            public string Title { get; set; }
-            public string Director { get; set; }
-            // Add other properties as needed
-        }
-
-        public class SearchResults
-        {
-            public Movie[] Value { get; set; }
-        }
-
-        public static async Task<JObject> GetData(string searchQuery)
-        {
-            string subscriptionKey = Secrets.Get("BING_IMAGE_SEARCH");
-
-            //string searchQuery = $"movies directed by {director}";
-            string bingAPIEndpoint = "https://api.bing.microsoft.com/v7.0/entities";
-
-            using (var client = new HttpClient())
-            {
-                var uri = new Uri($"{bingAPIEndpoint}?q={Uri.EscapeDataString(searchQuery)}&count=100&mkt=en-US");
-                client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", subscriptionKey);
-
-                var response = await client.GetAsync(uri);
-
-                string jsonResponse = await response.Content.ReadAsStringAsync();
-
-                JObject jobj = JObject.Parse(jsonResponse);
-
-                return jobj;
-            }
-
-
-            throw new NotImplementedException();
-        }
-
-
         #endregion
 
         #region CHAT API & MACHINE LEARNING
@@ -985,7 +946,6 @@ namespace VedAstro.Library
 
 
         #endregion
-
 
         #region VARGAS OR SUBTLE DIVISIONS
 
@@ -11936,6 +11896,28 @@ namespace VedAstro.Library
             return factor;
         }
 
+        /// <summary>
+        /// Given a list of planets will pick out the strongest planet based on Shadbala
+        /// </summary>
+        public static PlanetName PickOutStrongestPlanet(List<PlanetName> relatedPlanets, Time birthTime)
+        {
+            //if only 1 planet than no need to check
+            if (relatedPlanets.Count == 1) { return relatedPlanets[0]; }
+
+            //calculate strength for all given planets
+            var powerList = new Dictionary<PlanetName, double>();
+            foreach (var relatedPlanet in relatedPlanets)
+            {
+                var strength = Calculate.PlanetStrength(relatedPlanet, birthTime);
+                powerList.Add(relatedPlanet, strength.ToDouble());
+            }
+
+            //pickout highest value
+            var strongest = powerList.Aggregate((l, r) => l.Value > r.Value ? l : r);
+
+            //return strongest planet name
+            return strongest.Key;
+        }
 
         /// <summary>
         /// Returns an array of all planets sorted by strenght,
@@ -14845,29 +14827,6 @@ namespace VedAstro.Library
 
         //--------------------------------------------------------------------------------------------
 
-
-        /// <summary>
-        /// Given a list of planets will pick out the strongest planet based on Shadbala
-        /// </summary>
-        public static PlanetName PickOutStrongestPlanet(List<PlanetName> relatedPlanets, Time birthTime)
-        {
-            //if only 1 planet than no need to check
-            if (relatedPlanets.Count == 1) { return relatedPlanets[0]; }
-
-            //calculare strength for all given planets
-            var powerList = new Dictionary<PlanetName, double>();
-            foreach (var relatedPlanet in relatedPlanets)
-            {
-                var strength = Calculate.PlanetStrength(relatedPlanet, birthTime);
-                powerList.Add(relatedPlanet, strength.ToDouble());
-            }
-
-            //pickout highest value
-            var strongest = powerList.Aggregate((l, r) => l.Value > r.Value ? l : r);
-
-            //return strongest planet name
-            return strongest.Key;
-        }
 
         /// <summary>
         /// Gets the characteristic of signs
