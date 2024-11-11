@@ -434,7 +434,7 @@ namespace VedAstro.Library
         }
 
         /// <summary>
-        /// Given coordinates will convert to it's geo location equivelant
+        /// Given coordinates will convert to it's geo location equivalent
         /// http://localhost:7071/api/Calculate/CoordinatesToGeoLocation/Latitude/35.6764/Longitude/139.6500
         /// </summary>
         public static async Task<GeoLocation> CoordinatesToGeoLocation(string latitude, string longitude)
@@ -3591,6 +3591,141 @@ namespace VedAstro.Library
 
         #endregion
 
+        #region TIME
+
+        /// <summary>
+        /// Converts time back to longitude, it is the reverse of LongitudeToLMTOffset
+        /// Exp :  5h. 10m. 20s. E. Long. to 77° 35' E. Long
+        /// </summary>
+        public static Angle TimeOffsetToLongitude(TimeSpan time)
+        {
+            //TODO function is a candidate for caching
+            //degrees is equivalent to hours
+            var totalDegrees = time.TotalHours * 15;
+
+            return Angle.FromDegrees(totalDegrees);
+        }
+
+        /// <summary>
+        /// Gets the ephemris time that is consumed by Swiss Ephemeris
+        /// Converts normal time to Ephemeris time shown as a number
+        /// </summary>
+        public static double TimeToEphemerisTime(Time time)
+        {
+
+            //CACHE MECHANISM
+            return CacheManager.GetCache(new CacheKey(nameof(TimeToEphemerisTime), time, Ayanamsa), _timeToEphemerisTime);
+
+
+            //UNDERLYING FUNCTION
+            double _timeToEphemerisTime()
+            {
+                SwissEph ephemeris = new();
+
+                //set GREGORIAN CALENDAR
+                int gregflag = SwissEph.SE_GREG_CAL;
+
+                //get LMT at UTC (+0:00)
+                DateTimeOffset utcDate = LmtToUtc(time);
+
+                //extract details of time
+                int year = utcDate.Year;
+                int month = utcDate.Month;
+                int day = utcDate.Day;
+                double hour = (utcDate.TimeOfDay).TotalHours;
+
+
+                double jul_day_UT;
+                double jul_day_ET;
+
+                //do conversion to ephemris time
+                jul_day_UT = ephemeris.swe_julday(year, month, day, hour, gregflag); //time to Julian Day
+                jul_day_ET = jul_day_UT + ephemeris.swe_deltat(jul_day_UT); //Julian Day to ET
+
+                return jul_day_ET;
+            }
+
+        }
+
+        /// <summary>
+        /// Convert Local Mean Time (LMT) to Standard Time (STD)
+        /// API URL : ../LmtToStd/Time/05:45/03/05/1932/Longitude/75/STDOffset/+05:30
+        /// </summary>
+        public static DateTimeOffset LmtToStd(LocalMeanTime lmtDateTime, TimeSpan stdOffset)
+        {
+            //get lmt time
+            var lmtTime = new DateTimeOffset(lmtDateTime.Date, LongitudeToLMTOffset(lmtDateTime.Longitude));
+
+            //convert lmt to std & store it
+            var stdTime = lmtTime.ToOffset(stdOffset);
+
+            return stdTime;
+        }
+
+        /// <summary>
+        /// Convert longitude to LMT offset
+        /// input longitude range : -180 to 180 
+        /// </summary>
+        public static TimeSpan LongitudeToLMTOffset(double longitudeDeg)
+        {
+            var failCount = 0;
+            var failTryLimit = 3;
+
+
+            try
+            {
+            TryAgain:
+                //raise alarm if longitude is out of range
+                var outOfRange = !(longitudeDeg >= -180 && longitudeDeg <= 180);
+                if (outOfRange)
+                {
+                    if (failCount < failTryLimit)
+                    {
+                        var oldLongitude = longitudeDeg; //back up for logging
+
+                        //instead of giving up, lets take a go at correcting it
+                        //assume input is 48401 but should be 48.401, so divide 1000
+                        longitudeDeg = longitudeDeg / 1000;
+
+                        failCount++; //keep track so not fall into rabbit hole
+
+                        LibLogger.Debug($"Longitude out of range : {oldLongitude} > Auto correct to : {longitudeDeg}"); //log it for debug research
+
+                        goto TryAgain;
+                    }
+
+                    //if control reaches here than raise exception,
+                    //control should not reach here under any good call condition
+                    throw new Exception($"Longitude out of range : {longitudeDeg} > Auto correct failed!");
+                }
+
+                //calculate offset based on longitude
+                var offsetToReturn = TimeSpan.FromHours(longitudeDeg / 15.0);
+
+                //round off offset to full minutes (because datetime doesnt accept fractional minutes in offsets)
+                var offsetMinutes = Math.Round(offsetToReturn.TotalMinutes);
+
+                //get new offset from rounded minutes
+                offsetToReturn = TimeSpan.FromMinutes(offsetMinutes);
+
+                //return offset to caller
+                return offsetToReturn;
+
+            }
+            catch (Exception e)
+            {
+                //let caller know failure silently
+                LibLogger.Debug(e);
+
+                //return empty LMT for controlled failure
+                return TimeSpan.Zero;
+            }
+
+        }
+
+
+        #endregion
+
         #region GENERAL
         /// <summary>
         /// supports dynamic 3 types of preset
@@ -4014,8 +4149,6 @@ namespace VedAstro.Library
 
         }
 
-
-
         /// <summary>
         /// Gets all houses owned by a planet at a given time 
         /// </summary>
@@ -4180,8 +4313,6 @@ namespace VedAstro.Library
             throw new Exception("End of Line");
 
         }
-
-
 
         /// <summary>
         /// Calculate Fortuna Point for a given birth time & place. Returns Sign Number from Lagna
@@ -4405,7 +4536,6 @@ namespace VedAstro.Library
         /// </summary>
         public static async Task<string> SkyChart(Time time) => await SkyChartFactory.GenerateChart(time, 750, 230);
 
-
         /// <summary>
         /// Creates a kundali chart from D1 to D20. In south indian style. URL can be used like a SVG image source link
         /// </summary>
@@ -4465,63 +4595,6 @@ namespace VedAstro.Library
 
             //todo from PG15 of Bhava and Graha Balas
             throw new NotImplementedException("");
-        }
-
-        /// <summary>
-        /// Converts time back to longitude, it is the reverse of GetLocalTimeOffset in Time
-        /// Exp :  5h. 10m. 20s. E. Long. to 77° 35' E. Long
-        /// </summary>
-        public static Angle TimeToLongitude(TimeSpan time)
-        {
-            //TODO function is a candidate for caching
-            //degrees is equivalent to hours
-            var totalDegrees = time.TotalHours * 15;
-
-            return Angle.FromDegrees(totalDegrees);
-        }
-
-        //NORMAL FUNCTIONS
-        //FUNCTIONS THAT CALL OTHER FUNCTIONS IN THIS CLASS
-
-        /// <summary>
-        /// Gets the ephemris time that is consumed by Swiss Ephemeris
-        /// Converts normal time to Ephemeris time shown as a number
-        /// </summary>
-        public static double TimeToEphemerisTime(Time time)
-        {
-
-            //CACHE MECHANISM
-            return CacheManager.GetCache(new CacheKey(nameof(TimeToEphemerisTime), time, Ayanamsa), _timeToEphemerisTime);
-
-
-            //UNDERLYING FUNCTION
-            double _timeToEphemerisTime()
-            {
-                SwissEph ephemeris = new();
-
-                //set GREGORIAN CALENDAR
-                int gregflag = SwissEph.SE_GREG_CAL;
-
-                //get LMT at UTC (+0:00)
-                DateTimeOffset utcDate = LmtToUtc(time);
-
-                //extract details of time
-                int year = utcDate.Year;
-                int month = utcDate.Month;
-                int day = utcDate.Day;
-                double hour = (utcDate.TimeOfDay).TotalHours;
-
-
-                double jul_day_UT;
-                double jul_day_ET;
-
-                //do conversion to ephemris time
-                jul_day_UT = ephemeris.swe_julday(year, month, day, hour, gregflag); //time to Julian Day
-                jul_day_ET = jul_day_UT + ephemeris.swe_deltat(jul_day_UT); //Julian Day to ET
-
-                return jul_day_ET;
-            }
-
         }
 
         /// <summary>
@@ -6535,17 +6608,6 @@ namespace VedAstro.Library
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-        }
-
-        /// <summary>
-        /// Convert Local Mean Time (LMT) to Standard Time (STD)
-        /// </summary>
-        public static DateTimeOffset LmtToStd(DateTimeOffset lmtDateTime, TimeSpan stdOffset)
-        {
-            //set lmt to offset
-            //var tempTime = new DateTimeOffset(lmtDateTime);
-
-            return lmtDateTime.ToOffset(stdOffset);
         }
 
 
