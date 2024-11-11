@@ -2125,7 +2125,7 @@ namespace VedAstro.Library
             // 365 days, 6 hours, 9 minutes and 12 seconds differing from. the Hindu sidereal year by ~.5 vighatis or
             // 3 minutes and 24 seconds. A study· of a number of
             // annual charts for over 30 years has convinced me
-            // that the moden_:1 value of the sidereal year would yield
+            // that the modern value of the sidereal year would yield
             // better results. H
 
             //CACHE MECHANISM
@@ -2137,7 +2137,7 @@ namespace VedAstro.Library
             Time _tajikaDateForYear()
             {
 
-                //Below data was called out from pg 22 of Varshaphala-Hindu Progressed Horoscope - BV. RAMAN
+                //Below data was culled out from pg 22 of Varshaphala-Hindu Progressed Horoscope - BV. RAMAN
                 var records = new Dictionary<int, Dictionary<string, int>>()
                 {
                     { 1, new Dictionary<string, int>(){ {"Days", 1}, {"Hrs", 6}, {"Mts", 9}, {"Secs", 12} }},
