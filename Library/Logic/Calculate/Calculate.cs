@@ -3829,56 +3829,20 @@ namespace VedAstro.Library
                     case "month":
                     case "months":
                         hoursToAdd = Tools.MonthsToHours(number);
-                        start = new Time($"00:00 {_1WeekAgo}", birthLocation);
+                        start = timeNow.RemoveHours(hoursToAdd);
                         end = timeNow.AddHours(hoursToAdd);
                         return new TimeRange(start, end);
                     case "year":
                     case "years":
                         hoursToAdd = Tools.YearsToHours(number);
-                        start = new Time($"00:00 {_6MonthsAgo}", birthLocation);
+                        start = timeNow.RemoveHours(hoursToAdd);
                         end = timeNow.AddHours(hoursToAdd);
                         return new TimeRange(start, end);
                     case "decades":
                     case "decade":
                         hoursToAdd = Tools.DecadesToHours(number);
-                        start = new Time($"00:00 {_1YearAgo}", birthLocation);
+                        start = timeNow.RemoveHours(hoursToAdd);
                         end = timeNow.AddHours(hoursToAdd);
-                        return new TimeRange(start, end);
-                    case "age1to50":
-                        start = birthTimeClient;
-                        end = birthTimeClient.AddYears(50);
-                        return new TimeRange(start, end);
-                    case "age1to25":
-                        start = birthTimeClient;
-                        end = birthTimeClient.AddYears(25);
-                        return new TimeRange(start, end);
-                    case "age10to35":
-                        start = birthTimeClient.AddYears(10);
-                        end = birthTimeClient.AddYears(35);
-                        return new TimeRange(start, end);
-                    case "age25to50":
-                        start = birthTimeClient.AddYears(25);
-                        end = birthTimeClient.AddYears(50);
-                        return new TimeRange(start, end);
-                    case "age35to60":
-                        start = birthTimeClient.AddYears(35);
-                        end = birthTimeClient.AddYears(60);
-                        return new TimeRange(start, end);
-                    case "age50to75":
-                        start = birthTimeClient.AddYears(50);
-                        end = birthTimeClient.AddYears(75);
-                        return new TimeRange(start, end);
-                    case "age60to85":
-                        start = birthTimeClient.AddYears(60);
-                        end = birthTimeClient.AddYears(85);
-                        return new TimeRange(start, end);
-                    case "age75to100":
-                        start = birthTimeClient.AddYears(75);
-                        end = birthTimeClient.AddYears(100);
-                        return new TimeRange(start, end);
-                    case "age50to100":
-                        start = birthTimeClient.AddYears(50);
-                        end = birthTimeClient.AddYears(100);
                         return new TimeRange(start, end);
                     case "fulllife":
                         start = birthTimeClient;
