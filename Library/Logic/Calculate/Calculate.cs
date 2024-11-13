@@ -4505,7 +4505,7 @@ namespace VedAstro.Library
         /// </summary>
         public static string SouthIndianChart(Time time, ChartType chartType = ChartType.RasiD1)
         {
-            var svgString = (new SouthChartFactory(time, 1000, 1000, chartType)).SVGChart;
+            var svgString = (new SouthChartFactory(time, chartType)).SVGChart;
 
             return svgString;
         }
