@@ -401,7 +401,7 @@ namespace VedAstro.Library
             GeoLocation _AddressToGeoLocation()
             {
                 //inject api key from parent
-                var locationProvider = new Location();
+                var locationProvider = new LocationManager();
 
                 //do calculation using API and cache inteligently
                 var returnVal = locationProvider.AddressToGeoLocation(address).Result;
@@ -423,7 +423,7 @@ namespace VedAstro.Library
                 if (address.Length < 4) { return new List<GeoLocation>(); }
 
                 //inject api key from parent
-                var locationProvider = new Location();
+                var locationProvider = new LocationManager();
 
                 //do calculation using API and cache inteligently
                 var returnVal = await locationProvider.SearchAddressToGeoLocation(address);
@@ -446,7 +446,7 @@ namespace VedAstro.Library
             async Task<GeoLocation> _CoordinatesToGeoLocation(string latitude, string longitude)
             {
                 //inject api key from parent
-                var locationProvider = new Location();
+                var locationProvider = new LocationManager();
 
                 //do calculation using API and cache inteligently
                 var returnVal = await locationProvider.CoordinatesToGeoLocation(latitude, longitude);
@@ -469,7 +469,7 @@ namespace VedAstro.Library
             async Task<string> _GeoLocationToTimezone(GeoLocation geoLocation, DateTimeOffset timeAtLocation)
             {
                 //inject api key from parent
-                var locationProvider = new Location();
+                var locationProvider = new LocationManager();
 
                 //do calculation using API and cache inteligently
                 var returnVal = await locationProvider.GeoLocationToTimezone(geoLocation, timeAtLocation);
@@ -492,7 +492,7 @@ namespace VedAstro.Library
             {
 
                 //inject api key from parent
-                var locationProvider = new Location();
+                var locationProvider = new LocationManager();
 
                 //do calculation using API and cache inteligently
                 var returnVal = await locationProvider.IpAddressToGeoLocation(ipAddress);
