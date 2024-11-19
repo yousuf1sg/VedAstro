@@ -3918,6 +3918,7 @@ namespace VedAstro.Library
         /// For the first instance, the inopportune time can be seen from the horoscope of the
         /// moment of occurance of the event and for the latter case, the same can be seen from
         /// the horoscope of the person inflicting pain and injury.
+        /// Source : https://studylib.net/doc/27493638/secrets-of-ghataka-chakra
         /// </summary>
         public static List<string> GhatakaChakra(Time time, Time birthTime)
         {
