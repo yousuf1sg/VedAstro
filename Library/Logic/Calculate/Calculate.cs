@@ -1323,7 +1323,7 @@ namespace VedAstro.Library
         /// Gets Navamsa (D9) sign given a longitude
         /// TODO : BV RAMAN method, OLD MARKED FOR OBLIVION, NEEDS TESTING AGAINST NEW METHOD
         /// </summary>
-        public static ZodiacName NavamsaSignNameFromLongitudeOLD(Angle longitude)
+        public static ZodiacSign NavamshaSignAtLongitudeOLD(Angle longitude)
         {
             //1.0 Get ordinary zodiac sign name
             //get ordinary zodiac sign
@@ -1382,7 +1382,7 @@ namespace VedAstro.Library
             //count from first navamsa sign
             ZodiacName signAtNavamsa = SignCountedFromInputSign(firstNavamsa, navamsaNumber);
 
-            return signAtNavamsa;
+            return new ZodiacSign(signAtNavamsa, Angle.Zero);
 
         }
 
