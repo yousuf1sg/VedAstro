@@ -10856,18 +10856,19 @@ namespace VedAstro.Library
 
         }
 
+
         /// <summary>
-        /// Gets the longitude of house 1 and house 10
+        /// Gets the middle longitude of house 1 to house 12
         /// using Swiss Epehemris swe_houses
         /// </summary>
-        public static double[] GetHouse1And10Longitudes(Time time)
+        public static double[] GetAllHouseSayanaLongitudes(Time time)
         {
             //CACHE MECHANISM
-            return CacheManager.GetCache(new CacheKey(nameof(GetHouse1And10Longitudes), time, Ayanamsa), _getHouse1And10Longitudes);
+            return CacheManager.GetCache(new CacheKey(nameof(GetAllHouseSayanaLongitudes), time, Ayanamsa), _getAllHouseSayanaLongitudes);
 
 
             //UNDERLYING FUNCTION
-            double[] _getHouse1And10Longitudes()
+            double[] _getAllHouseSayanaLongitudes()
             {
                 //get location at place of time
                 var location = time.GetGeoLocation();
@@ -10878,22 +10879,16 @@ namespace VedAstro.Library
                 SwissEph swissEph = new SwissEph();
 
                 double[] cusps = new double[13];
-
                 //we have to supply ascmc to make the function run
                 double[] ascmc = new double[10];
 
-                //set ayanamsa
-                swissEph.swe_set_sid_mode(Ayanamsa, 0, 0);
-
-                //NOTE:
-                //if you use P which is Placidus there is a high chances you will get unequal houses from the SwissEph library itself...
-                // you have to use V - 'V'Vehlow equal (Asc. in middle of house 1)
-                swissEph.swe_houses(jul_day_UT, location.Latitude(), location.Longitude(), 'V', cusps, ascmc);
+                //Note: using Placidus house system to match Raphael's Ephemeris, as used in Raman's books
+                swissEph.swe_houses(jul_day_UT, location.Latitude(), location.Longitude(), 'P', cusps, ascmc);
 
                 //we only return cusps, cause that is what is used for now
                 return cusps;
-            }
 
+            }
         }
 
 
