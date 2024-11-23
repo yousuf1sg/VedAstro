@@ -9047,6 +9047,22 @@ namespace VedAstro.Library
             //UNDERLYING FUNCTION
             Angle _getAyanamsaDegree()
             {
+                //get ayanamsa from swiss for all except Raman,
+                //becasue swiss does not match with Raman's book
+                if (Calculate.Ayanamsa == (int)Library.Ayanamsa.RAMAN)
+                {
+                    return calculateRamanAyanamsa(time);
+                }
+                else
+                {
+                    return getAyanamsaFromSwissEphemeris(time);
+                }
+
+            }
+
+            //gets ayanamsa from swiss eph
+            Angle getAyanamsaFromSwissEphemeris(Time time)
+            {
                 //This would request sidereal positions calculated using the Swiss Ephemeris.
                 int iflag = SwissEph.SEFLG_SIDEREAL;
                 //int iflag = SwissEph.SEFLG_NONUT;
@@ -9059,21 +9075,37 @@ namespace VedAstro.Library
                 //set ayanamsa
                 ephemeris.swe_set_sid_mode(Ayanamsa, 0, 0);
 
-
-
-                //var ayanamsaDegree = ephemeris.swe_get_ayanamsa(jul_day_ET);
-                //return Angle.FromDegrees(ayanamsaDegree);
-
-                //USE this newer method in Swiss Eph intrduced in Ver 2.0. See Swiss Eph for Documentation
+                //USE this newer method in Swiss Eph introduced in Ver 2.0. See Swiss Eph for Documentation
                 //CPJ Add/Change Nov 22 2023 because Ayanamsa not precise compared to other software products
                 //this provides higher precision Ayanamsa
-                string serr = "";
+                string serr = ""; //buffer to capture error messages
                 double daya;
                 var ayanamsaDegree = ephemeris.swe_get_ayanamsa_ex(jul_day_ET, iflag, out daya, ref serr);
 
                 return Angle.FromDegrees(daya);
 
             }
+
+            //manually calculates Raman ayanamsa to match with : Article 49 - Manual Of Hindu Astrology - pg 22
+            Angle calculateRamanAyanamsa(Time time)
+            {
+                int year = Calculate.LmtToUtc(time).Year;
+
+                //it has been observed and proved mathematically, that each year at the time when the Sun reaches his
+                //equinoctial point of Aries 0° when throughout the earth, the day and night are equal in length,
+                //the position of the earth in reference to some fixed star is nearly 50.333 of space farther west
+                //than the earth was at the same equinoctial moment of the previous year.
+                const double precessionRate = 50.3333333333;
+
+                // B.V.Raman accepted 397 AD as the Zero Ayanamsa Year 
+                const int yearOfCoincidence = 397;
+
+                var ayanamsaSecondsRaw = (year - yearOfCoincidence) * precessionRate;
+                var returnValue = new Angle(seconds: (long)(Math.Round(ayanamsaSecondsRaw)));
+
+                return returnValue;
+            }
+
 
         }
 
