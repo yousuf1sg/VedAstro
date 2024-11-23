@@ -9139,8 +9139,6 @@ namespace VedAstro.Library
                 //Get planet long
                 int ret_flag = ephemeris.swe_calc(jul_day_ET, swissPlanet, iflag, results, ref err_msg);
 
-
-
                 //data in results at index 0 is longitude
                 var planetSayanaLongitude = Angle.FromDegrees(results[0]);
 
@@ -9196,9 +9194,26 @@ namespace VedAstro.Library
                     }
                 }
 
+                //get ayanamsa from swiss for all except Raman,
+                //becasue swiss ayanamsa does not match with Raman's book
+                if (Calculate.Ayanamsa == (int)Library.Ayanamsa.RAMAN)
+                {
+                    return _getPlanetNirayanaLongitudeForRaman();
+                }
+                else
+                {
+                    return _getPlanetNirayanaLongitudeSwissEph();
+                }
 
-                //This would request sidereal positions calculated using the Swiss Ephemeris.
-                int iflag = SwissEph.SEFLG_SIDEREAL | SwissEph.SEFLG_SWIEPH; // SEFLG_SIDEREAL | ; //+ SwissEph.SEFLG_SPEED;
+
+
+            }
+
+            //for all other ayanamsa uses swiss
+            Angle _getPlanetNirayanaLongitudeSwissEph()
+            {
+                //This would request sidereal (ayanamsa) positions calculated using the Swiss Ephemeris.
+                int iflag = SwissEph.SEFLG_SIDEREAL | SwissEph.SEFLG_SWIEPH;
                 double[] results = new double[6];
                 string err_msg = "";
                 double jul_day_ET;
@@ -9230,6 +9245,25 @@ namespace VedAstro.Library
 
             }
 
+            //specialized to use calculated Raman ayanamsa
+            Angle _getPlanetNirayanaLongitudeForRaman()
+            {
+                //declare return value
+                Angle returnValue;
+
+                //Get sayana longitude on day 
+                Angle longitude = PlanetSayanaLongitude(planetName, time);
+
+                //3 - Hindu Nirayana Long = Sayana Long — Ayanamsa.
+                Angle birthAyanamsa = Calculate.AyanamsaDegree(time);
+
+                //if below ayanamsa add 360 before minus
+                returnValue = longitude.TotalDegrees < birthAyanamsa.TotalDegrees
+                    ? (longitude + Angle.Degrees360) - birthAyanamsa
+                    : longitude - birthAyanamsa;
+
+                return returnValue;
+            }
 
         }
 
