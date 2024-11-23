@@ -5092,7 +5092,7 @@ namespace VedAstro.Library
                 //1.1 get House 1 & 10
 
                 //Get western 1 & 10 house longitudes
-                var cusps = GetHouse1And10Longitudes(time);
+                var cusps = GetAllHouseSayanaLongitudes(time);
 
                 //Get Sayana Long. of cusp of ascend.
                 var sayanaCuspOfHouse1 = Angle.FromDegrees(cusps[1]);
@@ -5117,10 +5117,10 @@ namespace VedAstro.Library
                 pathalaLagna = pathalaLagna.Expunge360();
 
                 //assign angular house middle longitudes, houses 1,4,7,10
-                house1MiddleLongitude = udayaLagna + Angle.FromDegrees(15);
-                house4MiddleLongitude = pathalaLagna + Angle.FromDegrees(15);
-                house7MiddleLongitude = astaLagna + Angle.FromDegrees(15);
-                house10MiddleLongitude = madhyaLagna + Angle.FromDegrees(15);
+                house1MiddleLongitude = udayaLagna;
+                house4MiddleLongitude = pathalaLagna;
+                house7MiddleLongitude = astaLagna;
+                house10MiddleLongitude = madhyaLagna;
 
                 //2.0 Get middle longitudes of non-angular houses
                 //2.1 Calculate arcs
