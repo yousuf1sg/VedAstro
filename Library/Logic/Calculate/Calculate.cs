@@ -7101,7 +7101,7 @@ namespace VedAstro.Library
         public static bool IsMaleficPlanetInHouse(HouseName houseNumber, Time time)
         {
             //get all the planets in the house
-            var planetsInHouse = PlanetsInHouse(houseNumber, time);
+            var planetsInHouse = PlanetsInHouseBasedOnSign(houseNumber, time);
 
             //get all evil planets
             var evilPlanets = MaleficPlanetList(time);
@@ -7121,7 +7121,7 @@ namespace VedAstro.Library
         public static bool IsBeneficPlanetInHouse(HouseName houseNumber, Time time)
         {
             //get all the planets in the house
-            var planetsInHouse = PlanetsInHouse(houseNumber, time);
+            var planetsInHouse = PlanetsInHouseBasedOnSign(houseNumber, time);
 
             //get all good planets
             var goodPlanets = BeneficPlanetList(time);
