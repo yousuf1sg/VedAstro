@@ -117,7 +117,7 @@ namespace VedAstro.Library
             //send data back to caller
             return compiledObj;
         }
-        
+
         public static JObject FindBirthTimeByRisingSign(Time possibleBirthTime, double precisionHours = 1)
         {
             //get list of possible birth time slice in the current birth day
@@ -662,7 +662,7 @@ namespace VedAstro.Library
 
             return compatibilityReport;
         }
-        
+
         public static async Task<string> BirthTimeLocationAutoAIFill(string personFullName)
         {
             //get birth time as compatible text
@@ -9124,10 +9124,8 @@ namespace VedAstro.Library
 
             Angle _getPlanetSayanaLongitude()
             {
-                //Converts LMT to UTC (GMT)
-                //DateTimeOffset utcDate = lmtDateTime.ToUniversalTime();
+                int iflag = SwissEph.SEFLG_SWIEPH;
 
-                int iflag = SwissEph.SEFLG_SWIEPH;  //+ SwissEph.SEFLG_SPEED;
                 double[] results = new double[6];
                 string err_msg = "";
                 SwissEph ephemeris = new SwissEph();
