@@ -7005,9 +7005,10 @@ namespace VedAstro.Library
         }
 
         /// <summary>
-        /// Checks if any 1 given planet is in a kendra house (1,4,7,10)
+        /// Checks if any 1 given planet is in a kendra house (4,7,10)
         /// Equals to "Is Jupiter or Venus in Kendra from Lagna"
-        /// Also know as quadrant houses
+        /// Also know as quadrants or angles
+        /// NOTE House 1 not included because follow bv raman's book pg 16 (Astrology for Beginners)
         /// </summary>
         public static bool IsPlanetInKendra(PlanetName[] planetList, Time time)
         {
