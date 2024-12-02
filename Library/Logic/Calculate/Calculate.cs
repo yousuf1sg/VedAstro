@@ -3632,17 +3632,67 @@ namespace VedAstro.Library
                 int year = utcDate.Year;
                 int month = utcDate.Month;
                 int day = utcDate.Day;
-                double hour = (utcDate.TimeOfDay).TotalHours;
-
+                int hour = utcDate.Hour;
+                int minute = utcDate.Minute;
+                int second = utcDate.Second;
 
                 double jul_day_UT;
                 double jul_day_ET;
 
-                //do conversion to ephemris time
-                jul_day_UT = ephemeris.swe_julday(year, month, day, hour, gregflag); //time to Julian Day
-                jul_day_ET = jul_day_UT + ephemeris.swe_deltat(jul_day_UT); //Julian Day to ET
+                //results[0] = Julian day in ET (TT)
+                //results[1] = Julian day in UT (UT1)
+                double[] results = new double[2];
+                string err_msg = "";
 
-                return jul_day_ET;
+                //do conversion to ephemris time
+                ephemeris.swe_utc_to_jd(year, month, day, hour, minute, second, gregflag, results, ref err_msg); //time to Julian Day
+
+                //Julian day in ET (TT)
+                return results[0];
+            }
+
+        }
+
+
+        public static double TimeToJulianUniversalTime(Time time)
+        {
+
+            //CACHE MECHANISM
+            return CacheManager.GetCache(new CacheKey(nameof(TimeToJulianUniversalTime), time, Ayanamsa), _timeToJulianUniversalTime);
+
+
+            //UNDERLYING FUNCTION
+            double _timeToJulianUniversalTime()
+            {
+                SwissEph ephemeris = new();
+
+                //set GREGORIAN CALENDAR
+                int gregflag = SwissEph.SE_GREG_CAL;
+
+                //get LMT at UTC (+0:00)
+                DateTimeOffset utcDate = LmtToUtc(time);
+
+                //extract details of time
+                int year = utcDate.Year;
+                int month = utcDate.Month;
+                int day = utcDate.Day;
+                int hour = utcDate.Hour;
+                int minute = utcDate.Minute;
+                int second = utcDate.Second;
+
+                double jul_day_UT;
+                double jul_day_ET;
+
+                //results[0] = Julian day in ET (TT)
+                //results[1] = Julian day in UT (UT1)
+                double[] results = new double[2];
+                string err_msg = "";
+
+                //do conversion to ephemris time
+                ephemeris.swe_utc_to_jd(year, month, day, hour, minute, second, gregflag, results, ref err_msg); //time to Julian Day
+
+                //Julian day in UT (UT1)
+                return results[1];
             }
 
         }
