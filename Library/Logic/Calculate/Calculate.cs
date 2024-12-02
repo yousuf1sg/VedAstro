@@ -419,8 +419,8 @@ namespace VedAstro.Library
             async Task<List<GeoLocation>> _SearchLocation(string address)
             {
 
-                //return all searches with less than 4 chars as pre name typing search
-                if (address.Length < 4) { return new List<GeoLocation>(); }
+                //return all searches with less than 2 chars as pre name typing search
+                if (address.Length <= 2) { return new List<GeoLocation>(); }
 
                 //inject api key from parent
                 var locationProvider = new LocationManager();
