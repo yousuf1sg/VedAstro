@@ -3610,15 +3610,15 @@ namespace VedAstro.Library
         /// Gets the ephemris time that is consumed by Swiss Ephemeris
         /// Converts normal time to Ephemeris time shown as a number
         /// </summary>
-        public static double TimeToEphemerisTime(Time time)
+        public static double TimeToJulianEphemerisTime(Time time)
         {
 
             //CACHE MECHANISM
-            return CacheManager.GetCache(new CacheKey(nameof(TimeToEphemerisTime), time, Ayanamsa), _timeToEphemerisTime);
+            return CacheManager.GetCache(new CacheKey(nameof(TimeToJulianEphemerisTime), time, Ayanamsa), _timeToJulianEphemerisTime);
 
 
             //UNDERLYING FUNCTION
-            double _timeToEphemerisTime()
+            double _timeToJulianEphemerisTime()
             {
                 SwissEph ephemeris = new();
 
@@ -9070,7 +9070,7 @@ namespace VedAstro.Library
                 SwissEph ephemeris = new SwissEph();
 
                 // Convert DOB to ET
-                jul_day_ET = TimeToEphemerisTime(time);
+                jul_day_ET = TimeToJulianEphemerisTime(time);
 
                 //set ayanamsa
                 ephemeris.swe_set_sid_mode(Ayanamsa, 0, 0);
@@ -9131,7 +9131,7 @@ namespace VedAstro.Library
                 SwissEph ephemeris = new SwissEph();
 
                 // Convert DOB to ET
-                double jul_day_ET = TimeToEphemerisTime(time);
+                double jul_day_ET = TimeToJulianEphemerisTime(time);
 
                 //convert planet name, compatible with Swiss Eph
                 int swissPlanet = Tools.VedAstroToSwissEph(planetName);
@@ -9220,7 +9220,7 @@ namespace VedAstro.Library
                 SwissEph ephemeris = new SwissEph();
 
                 // Convert DOB to ET
-                jul_day_ET = TimeToEphemerisTime(time);
+                jul_day_ET = TimeToJulianEphemerisTime(time);
 
                 //convert planet name, compatible with Swiss Eph
                 int swissPlanet = Tools.VedAstroToSwissEph(planetName);
@@ -9373,7 +9373,7 @@ namespace VedAstro.Library
                 SwissEph ephemeris = new SwissEph();
 
                 // Convert DOB to ET
-                jul_day_ET = TimeToEphemerisTime(time);
+                jul_day_ET = TimeToJulianEphemerisTime(time);
 
                 //convert planet name, compatible with Swiss Eph
                 int swissPlanet = Tools.VedAstroToSwissEph(planetName);
@@ -9422,7 +9422,7 @@ namespace VedAstro.Library
                 SwissEph ephemeris = new SwissEph();
 
                 // Convert DOB to ET
-                jul_day_ET = TimeToEphemerisTime(time);
+                jul_day_ET = TimeToJulianEphemerisTime(time);
 
 
                 //Convert PlanetName to SE_PLANET type
@@ -9488,7 +9488,7 @@ namespace VedAstro.Library
             SwissEph ephemeris = new SwissEph();
 
             // Convert DOB to ET
-            jul_day_ET = TimeToEphemerisTime(time);
+            jul_day_ET = TimeToJulianEphemerisTime(time);
 
 
             //Convert PlanetName to SE_PLANET type
@@ -10874,7 +10874,7 @@ namespace VedAstro.Library
                 var location = time.GetGeoLocation();
 
                 //Convert DOB to Julian Day
-                var jul_day_UT = TimeToJulianDay(time);
+                var jul_day_UT = TimeToJulianUniversalTime(time);
 
                 SwissEph swissEph = new SwissEph();
 
@@ -13598,7 +13598,7 @@ namespace VedAstro.Library
                 SwissEph ephemeris = new SwissEph();
 
                 // Convert DOB to ET
-                var jul_day_ET = Calculate.TimeToEphemerisTime(time);
+                var jul_day_ET = Calculate.TimeToJulianEphemerisTime(time);
 
                 //ephemeris.swe_calc(jul_day_ET, SwissEph.SE_ECL_NUT, 0, x, ref err);
 
