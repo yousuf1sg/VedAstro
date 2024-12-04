@@ -5872,15 +5872,6 @@ namespace VedAstro.Library
         }
 
         /// <summary>
-        /// Exp : Get 4th sign from Saturn
-        /// </summary>
-        public static ZodiacName SignCountedFromPlanetSign(int countToNextSign, Time inputTime, PlanetName startPlanet)
-        {
-            var planetSignName = PlanetZodiacSign(startPlanet, inputTime).GetSignName();
-            return SignCountedFromInputSign(planetSignName, countToNextSign);
-        }
-
-        /// <summary>
         /// Exp : Get 4th sign from Lagna/Ascendant
         /// </summary>
         public static ZodiacName SignCountedFromLagnaSign(int countToNextSign, Time inputTime) => SignCountedFromInputSign(LagnaSignName(inputTime), countToNextSign);
@@ -8134,6 +8125,7 @@ namespace VedAstro.Library
         /// <summary>
         /// Checks if planet is placed in own house
         /// meaning house sign owned by planet
+        /// planet position determined by longitude
         /// note: rahu and ketu return false always
         /// </summary>
         public static bool IsPlanetInOwnHouse(PlanetName planetName, Time time)
@@ -8386,46 +8378,6 @@ namespace VedAstro.Library
         }
 
         /// <summary>
-        /// Experimental Code, stand back!
-        /// </summary>
-        public static double PlanetNatureScoreMK4(Time personBirthTime, PlanetName inputPlanet)
-        {
-            //if no house then no score
-            if (inputPlanet == PlanetName.Empty) { return 0; }
-
-            //get house score
-            //var planetStrength = GetPlanetShadbalaPinda(inputPlanet, personBirthTime).ToDouble();
-
-            //weakest planet gives lowest score -2
-            //strongest planet gives highest score 2
-            //get range
-            //var highestPlanetScore = GetPlanetShadbalaPinda(GetAllPlanetOrderedByStrength(personBirthTime)[0], personBirthTime).ToDouble();
-            //var weakestPlanet = GetAllPlanetOrderedByStrength(personBirthTime)[8];
-            //var lowestPlanetScore = GetPlanetShadbalaPinda(weakestPlanet, personBirthTime).ToDouble();
-
-            //find accurate planet strength relative to others
-            //if above limit than strong else weak below 0
-            var isBenefic = IsPlanetStrongInShadbala(inputPlanet, personBirthTime);
-            //var rangeBasedScore = 0.0;
-
-            var x = isBenefic ? 1 : -1;
-
-            return x;
-
-            //if (isBenefic) //positive number
-            //{
-            //     rangeBasedScore = planetStrength.Remap(lowestPlanetScore, highestPlanetScore, 0, 2);
-
-            //}
-            //else // 0 or below
-            //{
-            //     rangeBasedScore = planetStrength.Remap(lowestPlanetScore, highestPlanetScore, -2, 0);
-            //}
-
-            //return rangeBasedScore;
-        }
-
-        /// <summary>
         /// Based on Shadvarga get nature of planet for a person,
         /// nature in number form to for easy calculation into summary
         /// good = 1, bad = -1, neutral = 0
@@ -8501,24 +8453,6 @@ namespace VedAstro.Library
 
 
         }
-
-        /// <summary>
-        /// Used for judging dasa good or bad, Bala book pg 110
-        /// if planet has more Ishta than good = +1
-        /// else if more Kashta than bad = -1
-        /// </summary>
-        public static double PlanetIshtaKashtaScore(PlanetName planet, Time birthTime)
-        {
-            var ishtaScore = PlanetIshtaScore(planet, birthTime);
-
-            var kashtaScore = PlanetKashtaScore(planet, birthTime);
-
-            //if more than good, else bad
-            var ishtaMore = ishtaScore > kashtaScore;
-
-            return ishtaMore ? 1 : -1;
-        }
-
 
         /// <summary>
         /// Used for judging dasa good or bad, Bala book pg 110
@@ -8671,10 +8605,10 @@ namespace VedAstro.Library
         public static List<PlanetName> AllPlanetsSignsFromPlanet(int signsFromMoon, Time birthTime, PlanetName startPlanet)
         {
             //get the sign to check
-            var moonNthSign = SignCountedFromPlanetSign(signsFromMoon, birthTime, startPlanet);
+            var planetNthSign = SignCountedFromPlanetSign(signsFromMoon, startPlanet, birthTime);
 
             //get all the planets in the sign
-            var planetsIn = PlanetsInSign(moonNthSign, birthTime);
+            var planetsIn = PlanetsInSign(planetNthSign, birthTime);
 
             return planetsIn;
         }
