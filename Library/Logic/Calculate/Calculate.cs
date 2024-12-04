@@ -11168,7 +11168,7 @@ namespace VedAstro.Library
         #region GOCHARA
 
         /// <summary>
-        /// Gets the Gochara House number which is the count from birth Moon sign (janma rasi)
+        /// Gets the Gochara sign number which is the count from birth Moon sign (janma rasi)
         /// to the sign the planet is at the current time. Gochara == Transits
         /// </summary>
         public static int GocharaZodiacSignCountFromMoon(Time birthTime, Time currentTime, PlanetName planet)
@@ -11443,20 +11443,20 @@ namespace VedAstro.Library
         /// </summary>
         public static bool IsPlanetGocharaBindu(Time birthTime, Time nowTime, PlanetName planet, int bindu)
         {
-            //house the planet is transiting now
-            var gocharaSignCount = Calculate.GocharaZodiacSignCountFromMoon(birthTime, nowTime, planet);
+            //sign the planet is transiting now counted from moon
+            var signCountFromMoon = Calculate.GocharaZodiacSignCountFromMoon(birthTime, nowTime, planet);
 
             //check if there is any planet obstructing this transit prediction via Vedhasthana
-            var obstructionFound = Calculate.IsGocharaObstructed(planet, gocharaSignCount, birthTime, nowTime);
+            var obstructionFound = Calculate.IsGocharaObstructed(planet, signCountFromMoon, birthTime, nowTime);
 
             //if obstructed end here
             if (obstructionFound) { return false; }
 
             //gochara ongoing, get sign of house to get planet's bindu score for said transit
-            var gocharaSign = HouseSignName((HouseName)gocharaSignCount, nowTime);
+            var gocharaSign = Calculate.SignCountedFromPlanetSign(signCountFromMoon, Moon, birthTime);
 
             //get planet's current bindu
-            var planetBindu = Calculate.PlanetAshtakvargaBindu(planet, gocharaSign, nowTime);
+            var planetBindu = Calculate.PlanetAshtakvargaBindu(planet, gocharaSign, birthTime);
 
             //occuring if bindu is match
             var occuring = planetBindu == bindu;
