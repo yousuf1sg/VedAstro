@@ -8151,6 +8151,34 @@ namespace VedAstro.Library
         }
 
         /// <summary>
+        /// Checks if planet is placed in own sign
+        /// planet position determined by sign NOT longitude
+        /// note: rahu and ketu return false always
+        /// </summary>
+
+        public static bool IsPlanetInOwnSign(PlanetName planetName, Time time)
+        {
+            //find out if planet is rahu or ketu, because not all calculations supported
+            var isRahuKetu = planetName == Rahu || planetName == Ketu;
+
+            //get current house
+            var _planetCurrentHouse = HousePlanetOccupiesBasedOnSign(planetName, time);
+
+            //relationship with current house
+            var _currentHouseRelation = isRahuKetu ? 0 : PlanetRelationshipWithHouse(_planetCurrentHouse, planetName, time);
+
+            //relation should be own
+            if (_currentHouseRelation == PlanetToSignRelationship.OwnVarga)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
         /// Returns true if planet is in friendly sign
         /// </summary>
         public static bool IsPlanetInFriendSign(PlanetName planetName, Time time)
