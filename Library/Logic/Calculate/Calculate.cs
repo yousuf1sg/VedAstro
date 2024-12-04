@@ -3324,7 +3324,7 @@ namespace VedAstro.Library
         public static bool IsPlanetInGarvitaAvasta(PlanetName planetName, Time time)
         {
             //Planet in exaltation sign
-            var planetExalted = IsPlanetExalted(planetName, time);
+            var planetExalted = IsPlanetExaltedDegree(planetName, time);
 
             //moolatrikona zone
             var planetInMoolatrikona = IsPlanetInMoolatrikona(planetName, time);
@@ -7656,7 +7656,7 @@ namespace VedAstro.Library
         ///     the planet is exalted but in a particular degree
         ///     its exaltation is at the maximum level.
         /// </summary>
-        public static bool IsPlanetExalted(PlanetName planet, Time time)
+        public static bool IsPlanetExaltedDegree(PlanetName planet, Time time)
         {
             //get planet location
             var planetLongitude = PlanetNirayanaLongitude(planet, time);
@@ -7675,6 +7675,41 @@ namespace VedAstro.Library
             var planetIsExaltation = sameSign && sameDegree;
 
             return planetIsExaltation;
+        }
+
+        /// <summary>
+        /// Checks if a planet is in Exaltation sign
+        ///
+        /// NOTE:
+        /// -   Rahu & ketu accounted for
+        /// 
+        /// -   Exaltation
+        ///     Each planet is held to be exalted when it is
+        ///     in a particular sign. The power to do good when in
+        ///     exaltation is greater than when in its own sign.
+        ///     Throughout the sign ascribed,
+        ///     the planet is exalted but in a particular degree
+        ///     its exaltation is at the maximum level.
+        /// </summary>
+
+        public static bool IsPlanetExaltedSign(PlanetName planet, Time time)
+        {
+            //get planet location
+            var planetLongitude = PlanetNirayanaLongitude(planet, time);
+
+            //convert planet longitude to zodiac sign
+            var planetZodiac = ZodiacSignAtLongitude(planetLongitude);
+
+            //get the longitude where planet is Exaltation
+            var point = PlanetExaltationPoint(planet);
+
+            //check if planet is in Exaltation sign
+            var sameSign = planetZodiac.GetSignName() == point.GetSignName();
+
+            //check only degree ignore minutes & seconds
+            var planetIsExaltationSign = sameSign;
+
+            return planetIsExaltationSign;
         }
 
         /// <summary>
