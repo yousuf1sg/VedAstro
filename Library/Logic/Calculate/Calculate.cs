@@ -169,7 +169,7 @@ namespace VedAstro.Library
             return newPerson.Id;
 
         }
-
+        
         public static async Task<string> UpdatePerson(string ownerId, string personId, Time birthTime, string personName, Gender gender, string notes = "")
         {
             //pack the data
